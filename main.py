@@ -28,6 +28,11 @@ LIQUID_STAKING_KEYWORDS = [
 ]
 
 class DefiLlamaAdapterFetcher:
+    """
+    Fetches liquid staking protocol adapters from DefiLlama-Adapters repository.
+    Extracts contract addresses and prepares data for security analysis.
+    """
+    
     def __init__(self):
         self.protocols = []
         self.rate_limit_remaining = None
@@ -235,7 +240,7 @@ class DefiLlamaAdapterFetcher:
 def run_protocol_discovery():
     """Step 1: Discover and fetch protocols"""
     print("\n" + "="*80)
-    print("🚀 LADY PRIME - DeFi SECURITY ANALYSIS ENGINE")
+    print("🚀 LADY PRIME - DeFi SECURITY & RUGPULL ANALYSIS ENGINE v2.0")
     print("="*80)
     print("\n[STEP 1/2] Protocol Discovery & Contract Extraction")
     print("="*80)
@@ -290,18 +295,27 @@ def main():
         print("✨ LADY PRIME ANALYSIS COMPLETE")
         print("="*80)
         print("\n📁 Generated Files:")
-        print("   - liquid_staking_analysis.json (Raw protocol data)")
-        print("   - security_analysis_report.json (Detailed security analysis)")
-        print("   - security_analysis_report.csv (Spreadsheet summary)")
-        print("   - risk_rankings.json (Protocol risk rankings)")
-        print("   - protocol_reports/ (Individual protocol reports)")
-        print("\n🔍 Review reports to identify suspicious protocols and rugpull risks!")
+        print("   📊 liquid_staking_analysis.json - Raw protocol data from DefiLlama")
+        print("   🔒 security_analysis_report.json - Comprehensive security analysis")
+        print("   📈 security_analysis_report.csv - Spreadsheet for analysis")
+        print("   ⚠️  risk_rankings.json - Protocol rankings by risk level")
+        print("   📋 protocol_reports/ - Individual detailed reports per protocol")
+        print("\n🚨 Review reports to identify:")
+        print("   ✓ Centralized admin control")
+        print("   ✓ Fee siphoning mechanisms")
+        print("   ✓ Withdrawal traps and locks")
+        print("   ✓ Bridge vulnerabilities")
+        print("   ✓ Reward distribution anomalies")
+        print("   ✓ Governance manipulation vectors")
+        print("\n🔍 Use rankings to prioritize HIGH & CRITICAL risk protocols!")
         print("="*80 + "\n")
         
     except KeyboardInterrupt:
         print("\n\n⚠️  Analysis interrupted by user")
     except Exception as e:
         print(f"\n❌ Unexpected error: {str(e)}")
+        import traceback
+        traceback.print_exc()
 
 
 if __name__ == "__main__":
