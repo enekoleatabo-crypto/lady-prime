@@ -2,6 +2,9 @@ import os
 import json
 import requests
 import time
+import re
+import html
+from collections import defaultdict
 from dotenv import load_dotenv
 from datetime import datetime
 from security_orchestrator import SecurityOrchestrator
@@ -26,6 +29,206 @@ LIQUID_STAKING_KEYWORDS = [
     "symbiotic", "karak", "restake", "pendle", "aave", "morpho",
     "yearn", "convex", "stake", "liquid", "lsp", "kelp", "lst"
 ]
+
+# Detection helpers / heuristics
+ADDRESS_REGEX = re.compile(r'\b0x[a-fA-F0-9]{40}\b')
+KEYWORD_TO_CATEGORY = {
+    'stake': 'stake_contracts',
+    'staking': 'stake_contracts',
+    'staked': 'stake_contracts',
+    'reward': 'reward_contracts',
+    'rewards': 'reward_contracts',
+    'withdraw': 'withdrawal_contracts',
+    'withdrawal': 'withdrawal_contracts',
+    'vault': 'vault_contracts',
+    'chef': 'chef_contracts',
+    'owner': 'owner_addresses',
+    'admin': 'admin_addresses',
+    'governor': 'governance_addresses',
+    'liquid': 'liquid_contracts',
+    'pool2': 'pool2_contracts',
+    'fee': 'fee_related',
+}
+
+SECURITY_KEYWORDS = [
+    'onlyOwner', 'transferOwnership', 'setFee', 'pause', 'unpause',
+    'renounceOwnership', 'multisig', 'owner.withdraw', "require(msg.sender == owner)",
+    'initialize(', 'proxy', 'upgrade', 'setAdmin', 'setOwner', 'setGovernor'
+]
+
+GITHUB_CONTENTS_BASE = f"{GITHUB_API_URL}/repos/{DEFILLAMA_REPO}/contents/"
+
+
+def extract_addresses_from_text(text: str):
+    text = html.unescape(text)
+    return ADDRESS_REGEX.findall(text)
+
+
+def classify_address_by_context(text: str, addr_index: int, address: str):
+    N = 200
+    start = max(0, addr_index - N)
+    end = min(len(text), addr_index + len(address) + N)
+    ctx = text[start:end].lower()
+    categories = set()
+    for kw, cat in KEYWORD_TO_CATEGORY.items():
+        if kw in ctx:
+            categories.add(cat)
+    return categories
+
+
+def scan_adapter_files_for_addresses(adapter_path: str, token: str, file_exts=None, max_files=50):
+    if file_exts is None:
+        file_exts = ('.js', '.ts', '.mjs', '.cjs', '.json', '.sol')
+
+    headers = HEADERS.copy()
+    # Use GitHub API listing for the folder
+    url = GITHUB_CONTENTS_BASE + adapter_path
+    try:
+        r = requests.get(url, headers=headers, timeout=30)
+        if r.status_code == 404:
+            return {'error': 'adapter-path-not-found'}
+        r.raise_for_status()
+    except Exception as e:
+        return {'error': str(e)}
+
+    try:
+        items = r.json()
+    except Exception as e:
+        return {'error': 'bad-json-listing'}
+
+    results = defaultdict(list)
+    files_scanned = 0
+
+    # items may be a single file dict or a list
+    if isinstance(items, dict) and items.get('type') == 'file':
+        items = [items]
+
+    for item in items:
+        if files_scanned >= max_files:
+            break
+        if item.get('type') != 'file':
+            # If it's a directory, skip (we only scan top-level files in adapter dir for now)
+            continue
+        name = item.get('name', '')
+        if not any(name.endswith(ext) for ext in file_exts):
+            continue
+        raw_url = item.get('download_url')
+        if not raw_url:
+            continue
+        files_scanned += 1
+        try:
+            rf = requests.get(raw_url, headers=headers, timeout=30)
+            rf.raise_for_status()
+            text = rf.text
+        except Exception:
+            continue
+
+        # extract all addresses and classify by local context
+        for m in ADDRESS_REGEX.finditer(text):
+            addr = m.group(0)
+            categories = classify_address_by_context(text, m.start(), addr)
+            if not categories:
+                results['candidates'].append((addr, name, 'regex'))
+            else:
+                for c in categories:
+                    results[c].append((addr, name, 'regex_context'))
+
+        # security heuristics scan
+        lowered = text.lower()
+        for sk in SECURITY_KEYWORDS:
+            if sk.lower() in lowered:
+                results['security_flags'].append((sk, name))
+
+        time.sleep(0.08)
+
+    return results
+
+
+def augment_and_print_protocol(protocol: dict, github_token: str):
+    name = protocol.get('protocol') or protocol.get('name') or 'UNKNOWN'
+    path = protocol.get('path') or f"projects/{protocol.get('protocol') or protocol.get('name')}"
+    contracts = protocol.get('contracts') or {}
+
+    # ensure expected keys exist
+    for k in ['stake_contracts', 'reward_contracts', 'withdrawal_contracts', 'owner_addresses', 'candidates']:
+        contracts.setdefault(k, [])
+
+    total = sum(len(v) for v in contracts.values() if isinstance(v, list))
+
+    print(f"1. 📋 {name}")
+    if path:
+        print(f"   GitHub: https://github.com/{DEFILLAMA_REPO}/tree/main/{path}")
+    print(f"   Total Contracts (initial): {total}")
+
+    should_scan = (total == 0) or (total < 2)
+    scan_results = {}
+    if should_scan and path:
+        scan_results = scan_adapter_files_for_addresses(path, github_token)
+        if 'error' in scan_results:
+            print(f"   ⚠️ Adapter scan failed: {scan_results['error']}")
+            scan_results = {}
+        else:
+            for cat, items in list(scan_results.items()):
+                if cat in ['security_flags', 'error']:
+                    continue
+                for addr, srcfile, method in items:
+                    entry = f"{addr} ({srcfile}|{method})"
+                    if cat == 'stake_contracts' or 'stake' in cat:
+                        dest = 'stake_contracts'
+                    elif cat == 'reward_contracts' or 'reward' in cat:
+                        dest = 'reward_contracts'
+                    elif cat == 'withdrawal_contracts' or 'withdraw' in cat:
+                        dest = 'withdrawal_contracts'
+                    elif cat == 'owner_addresses':
+                        dest = 'owner_addresses'
+                    elif cat == 'candidates':
+                        dest = 'candidates'
+                    else:
+                        dest = cat
+                    if entry not in contracts.get(dest, []):
+                        contracts.setdefault(dest, []).append(entry)
+
+            flags = scan_results.get('security_flags', [])
+            if flags:
+                print("   🔎 Security heuristics found patterns:")
+                for sk, filename in flags:
+                    print(f"     - {sk} in {filename}")
+
+            total = sum(len(v) for v in contracts.values() if isinstance(v, list))
+
+    print(f"   Total Contracts (final): {total}")
+
+    def print_list_label(key, label, limit=5):
+        arr = contracts.get(key, []) or []
+        if arr:
+            displayed = arr[:limit]
+            more = len(arr) - len(displayed)
+            print(f"   {label}: {', '.join(displayed)}{(' ...+'+str(more)+' more' ) if more>0 else ''}")
+
+    print_list_label('stake_contracts', '🔒 Stake')
+    print_list_label('reward_contracts', '💰 Rewards')
+    print_list_label('withdrawal_contracts', '🚀 Withdrawal')
+    print_list_label('owner_addresses', '👤 Owners / Admins')
+    print_list_label('candidates', '❓ Candidate addresses (unclassified)')
+
+    alerts = []
+    if contracts.get('owner_addresses') and len(contracts.get('owner_addresses')) == 1:
+        alerts.append("Ownership concentrated: single owner address found")
+    if 'candidates' in contracts and len(contracts['candidates']) > 5:
+        alerts.append("Many candidate addresses found — adapter might expose many contracts not categorized")
+    if scan_results.get('security_flags'):
+        alerts.append("Code contains ownership/onlyOwner/pause/upgrade patterns — investigate")
+
+    if alerts:
+        print("   ⚠️ Security Flags Summary:")
+        for a in alerts:
+            print(f"     - {a}")
+
+    print()
+
+    protocol['contracts'] = contracts
+    return protocol
+
 
 class DefiLlamaAdapterFetcher:
     """
@@ -90,28 +293,41 @@ class DefiLlamaAdapterFetcher:
         """Parse individual protocol to extract contract addresses"""
         try:
             protocol_name = protocol_dir["name"]
-            
+            path = f"projects/{protocol_name}"
             # Get the index.js file from protocol directory
-            index_url = f"{GITHUB_API_URL}/repos/{DEFILLAMA_REPO}/contents/projects/{protocol_name}/index.js"
+            index_url = f"{GITHUB_API_URL}/repos/{DEFILLAMA_REPO}/contents/{path}/index.js"
             
             response = requests.get(index_url, headers=HEADERS)
             
             if response.status_code == 404:
-                return None
+                # No index.js present, still return a protocol entry with empty contracts so augmenter can scan files
+                return {
+                    "protocol": protocol_name,
+                    "path": path,
+                    "github_url": f"https://github.com/{DEFILLAMA_REPO}/tree/main/{path}",
+                    "index_file_url": None,
+                    "contracts": {
+                        "stake_contracts": [],
+                        "reward_contracts": [],
+                        "withdrawal_contracts": [],
+                        "other_contracts": []
+                    }
+                }
             
             response.raise_for_status()
             
             file_data = response.json()
             
             # Get raw content
-            raw_content = requests.get(file_data["download_url"]).text
+            raw_content = requests.get(file_data["download_url"], headers=HEADERS).text
             
             # Extract contract addresses
             contracts = self._extract_contract_addresses(raw_content)
             
             return {
                 "protocol": protocol_name,
-                "github_url": f"https://github.com/{DEFILLAMA_REPO}/tree/main/projects/{protocol_name}",
+                "path": path,
+                "github_url": f"https://github.com/{DEFILLAMA_REPO}/tree/main/{path}",
                 "index_file_url": file_data["html_url"],
                 "contracts": contracts,
             }
@@ -121,8 +337,6 @@ class DefiLlamaAdapterFetcher:
     
     def _extract_contract_addresses(self, content):
         """Extract and categorize contract addresses from code"""
-        import re
-        
         contracts = {
             "stake_contracts": [],
             "reward_contracts": [],
@@ -131,8 +345,7 @@ class DefiLlamaAdapterFetcher:
         }
         
         # Find all Ethereum addresses (0x + 40 hex chars)
-        address_pattern = r'0x[a-fA-F0-9]{40}'
-        addresses = re.findall(address_pattern, content)
+        addresses = ADDRESS_REGEX.findall(content)
         
         # Remove duplicates
         unique_addresses = list(set(addresses))
@@ -219,22 +432,8 @@ class DefiLlamaAdapterFetcher:
             return
         
         for idx, protocol in enumerate(self.protocols, 1):
-            print(f"{idx}. 📋 {protocol['protocol']}")
-            print(f"   GitHub: {protocol['github_url']}")
-            print(f"   Index: {protocol['index_file_url']}")
-            
-            contracts = protocol['contracts']
-            total = sum(len(v) for v in contracts.values())
-            print(f"   Total Contracts: {total}")
-            
-            if contracts['stake_contracts']:
-                print(f"   🔒 Stake: {', '.join(contracts['stake_contracts'][:2])}")
-            if contracts['reward_contracts']:
-                print(f"   💰 Rewards: {', '.join(contracts['reward_contracts'][:2])}")
-            if contracts['withdrawal_contracts']:
-                print(f"   🚀 Withdrawal: {', '.join(contracts['withdrawal_contracts'][:2])}")
-            
-            print()
+            # Use the augmenter to scan/augment and print richer output
+            augment_and_print_protocol(protocol, GITHUB_PAT)
 
 
 def run_protocol_discovery():
