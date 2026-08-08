@@ -1,0 +1,316 @@
+{
+  "protocols": [
+    {
+      "protocol": "aave-aptos",
+      "reward_addresses": [],
+      "withdrawal_addresses": [],
+      "treasury_addresses": [
+        "0x39ddcd9e1a39fa14f25e3f9ec8a86074d05cc088"
+      ],
+      "governance_addresses": [],
+      "staking_addresses": []
+    },
+    {
+      "protocol": "aave-umbrella",
+      "reward_addresses": [],
+      "withdrawal_addresses": [],
+      "treasury_addresses": [],
+      "governance_addresses": [
+        "0xd400fc38ed4732893174325693a63c30ee3881a8"
+      ],
+      "staking_addresses": []
+    },
+    {
+      "protocol": "aave-v1",
+      "reward_addresses": [],
+      "withdrawal_addresses": [
+        "0x3dfd23A6c5E8BbcFc9581d2E864a68feb6a076d3",
+        "0x1012cfF81A1582ddD0616517eFB97D02c5c17E25"
+      ],
+      "treasury_addresses": [],
+      "governance_addresses": [],
+      "staking_addresses": []
+    },
+    {
+      "protocol": "aave-v3",
+      "reward_addresses": [
+        "0xB65A68B98274ef7D9a60E0C0747dD1BEc3D32fad",
+        "0x6C505C31714f14e8af2A03633EB2Cdfb4959138F"
+      ],
+      "withdrawal_addresses": [],
+      "treasury_addresses": [
+        "0x306c124fFba5f2Bc0BcAf40D249cf19D492440b9",
+        "0xb8734a14fbd4aa2d44e6aa830405ffc861ba313c",
+        "0xa0208CE8356ad6C5EC6dFb8996c9A6B828212022",
+        "0x3de0ff76e8b528c092d47b9dac775931cef80f49",
+        "0xE7d490885A68f00d9886508DF281D67263ed5758",
+        "0x54dc267be2839303ff1e323584a16e86cec4aa44",
+        "0x33b7d355613110b4E842f5f7057Ccd36fb4cee28",
+        "0x41393e5e337606dc3821075Af65AeE84D7688CBD",
+        "0x3feaa7483fcfba130e68b41369dd78ff30465459",
+        "0x9588b453A4EE24a420830CB3302195cA7aA3b403",
+        "0x08795CFE08C7a81dCDFf482BbAAF474B240f31cD",
+        "0x487c5c669D9eee6057C44973207101276cf73b68",
+        "0x02fcc4989b4c9d435b7ced3fe1ba4cf77bbb5dd8",
+        "0xf2D6E38B407e31E7E7e4a16E6769728b76c7419F",
+        "0xab509448ad489e2e1341e25cc500f2596464cc82",
+        "0x93b544c330f60a2aa05ced87aeeffb8d38fd8c9a",
+        "0x2D97F8FA96886Fd923c065F5457F9DDd494e3877"
+      ],
+      "governance_addresses": [
+        "0xaebf0bb9f57e89260d57f31af34eb58657d96ce0",
+        "0x9bf45ab47747f4b4dd09b3c2c73953484b4eb375",
+        "0x62c6e813b9589c3631ba0cdb013acdb8544038b7"
+      ],
+      "staking_addresses": []
+    },
+    {
+      "protocol": "aave-v4",
+      "reward_addresses": [],
+      "withdrawal_addresses": [
+        "0xCca852Bc40e560adC3b1Cc58CA5b55638ce826c9",
+        "0x06002e9c4412CB7814a791eA3666D905871E536A"
+      ],
+      "treasury_addresses": [],
+      "governance_addresses": [],
+      "staking_addresses": []
+    },
+    {
+      "protocol": "aave",
+      "reward_addresses": [
+        "0x4235E22d9C3f28DCDA82b58276cb6370B01265C2",
+        "0x3ac4e9aa29940770aeC38fe853a4bbabb2dA9C19"
+      ],
+      "withdrawal_addresses": [
+        "0x41a08648c3766f9f9d85598ff102a08f4ef84f84",
+        "0x7937D4799803FbBe595ed57278Bc4cA21f3bFfCB",
+        "0xa1116930326d21fb917d5a27f1e9943a9595fb47",
+        "0x4da27a545c0c5b758a6ba100e3a049001de870f5"
+      ],
+      "treasury_addresses": [
+        "0x52D306e36E3B6B02c153d0266ff0f85d18BCD413"
+      ],
+      "governance_addresses": [],
+      "staking_addresses": []
+    },
+    {
+      "protocol": "aavegotchi",
+      "reward_addresses": [],
+      "withdrawal_addresses": [],
+      "treasury_addresses": [
+        "0xA02d547512Bb90002807499F05495Fe9C4C3943f",
+        "0x096C5CCb33cFc5732Bcd1f3195C13dBeFC4c82f4",
+        "0xb208f8BB431f580CC4b216826AFfB128cd1431aB",
+        "0x385eeac5cb85a38a9a07a70c73e0a3271cfb54a7",
+        "0xFFE6280ae4E864D9aF836B562359FD828EcE8020",
+        "0x27DF5C6dcd360f372e23d5e63645eC0072D0C098",
+        "0xccb9d2100037f1253e6c1682adf7dc9944498aff",
+        "0x8B1Fd78ad67c7da09B682c5392b65CA7CaA101B9",
+        "0x3F382DbD960E3a9bbCeaE22651E88158d2791550"
+      ],
+      "governance_addresses": [],
+      "staking_addresses": []
+    },
+    {
+      "protocol": "affine-defi-liquid",
+      "reward_addresses": [],
+      "withdrawal_addresses": [],
+      "treasury_addresses": [
+        "0xF0a949B935e367A94cDFe0F2A54892C2BC7b2131",
+        "0xcbC632833687DacDcc7DfaC96F6c5989381f4B47",
+        "0xB838Eb4F224c2454F2529213721500faf732bf4d"
+      ],
+      "governance_addresses": [],
+      "staking_addresses": []
+    },
+    {
+      "protocol": "agilitylsd",
+      "reward_addresses": [],
+      "withdrawal_addresses": [
+        "0xe4a51ec59233ba1f62b71f84554622a532b584ed"
+      ],
+      "treasury_addresses": [
+        "0x489ab9065c597368f4a678fadcb323bf4c848713",
+        "0x498c00E1ccC2AFFf80F6Cc6144EAEB95c46cc3B5",
+        "0xC8187048f7Ab0db0774b674fEf3f4F4285A01bF4"
+      ],
+      "governance_addresses": [],
+      "staking_addresses": []
+    },
+    {
+      "protocol": "allstake",
+      "reward_addresses": [],
+      "withdrawal_addresses": [],
+      "treasury_addresses": [],
+      "governance_addresses": [
+        "0x344F8B88357A710937f2b3db9d1B974B9a002afB"
+      ],
+      "staking_addresses": []
+    },
+    {
+      "protocol": "angles-liquid",
+      "reward_addresses": [],
+      "withdrawal_addresses": [],
+      "treasury_addresses": [
+        "0xfa85fe5a8f5560e9039c04f2b0a90de1415abd70",
+        "0x9786DB1486A2f67977eF1e3dfbd0Eb01e407Be7b"
+      ],
+      "governance_addresses": [],
+      "staking_addresses": []
+    },
+    {
+      "protocol": "aof-stake-mining",
+      "reward_addresses": [],
+      "withdrawal_addresses": [],
+      "treasury_addresses": [
+        "0x946D86422775E7B32F3F8f0580504EADccF9b800"
+      ],
+      "governance_addresses": [],
+      "staking_addresses": []
+    },
+    {
+      "protocol": "apechainstake",
+      "reward_addresses": [],
+      "withdrawal_addresses": [
+        "0x4Ba2396086d52cA68a37D9C0FA364286e9c7835a"
+      ],
+      "treasury_addresses": [],
+      "governance_addresses": [],
+      "staking_addresses": []
+    },
+    {
+      "protocol": "aperocket",
+      "reward_addresses": [],
+      "withdrawal_addresses": [
+        "0x101bCD396DDFb934072a171Bc4F625B85D505C78",
+        "0x34d1f4FA762c85f363cb5907Ca0BAcF53aBac866",
+        "0xD9137C7be7a3117941317d525B06c441eAC7380d",
+        "0xBC84830C42cedc1A32b665BfEaB3Fb16bcdFb8e3",
+        "0x1119FBECe0F576D318ce489886d05A098e94961F",
+        "0xcf02e68b900Ce87F8715CAEF8b8a9e212b9158A1",
+        "0x76a3fE4350F13042EC179E5240bC68349d2AAD35",
+        "0x8ADDf5FcE06B9F93cBf1F8B2ef580b25D1EDBE56",
+        "0x0Edf919fe5cDA4c7fA02AE7de77243cecedFd036",
+        "0x1AFB491895D301a7cea026a5c65316b2C05A56B4",
+        "0x313adEc67e70a86Bd1166CCAcB8aCA932f28E95B",
+        "0x681969eBfC476E8208CA551fA364e8FE6a19242F",
+        "0xa126C7f00875343f233e3c2f95067c80ab5B068a",
+        "0xA298f622E8B46491749C1ccDBe2DfFA13049A930",
+        "0xC8bba6AC77804b3b6b28D6C5890b98fb935F361F",
+        "0xD259A715De1fB30AD76Cc9580e68A15Ee9D12Dc2",
+        "0x41b726444CcD5137A7Ec1Fbb870b9eFF57F89E89",
+        "0xe1F45D11B5D0Ddbe300cADFeFd7021Ac750a4281",
+        "0xB8469e8A7a8893E4c698B3De8163906386861B96",
+        "0x7dBB2b2Fd312710C805D4c78EE55ca1F8750Bace",
+        "0xa8A2c0aa4C050D2cB5C1Ac224A31c76492A35B80",
+        "0xf3D78aE6A67D391fd894ee8f4da7842EC07CF446",
+        "0x8E1fcB9b48A299b71d7a4CDc24F11439cF253126",
+        "0xA13eF34F11cD905A1aACe891e3Fd1b355D770e7F",
+        "0x8747431ddFf6069f32ad8eE0Da51084432F8594C",
+        "0xaC3184b1F2888caaB5A7dE1381707c15c153B04A",
+        "0x1c86DB4820Acb4Dd91A80a8874afb82251aeb937"
+      ],
+      "treasury_addresses": [
+        "0x603c7f932ED1fc6575303D8Fb018fDCBb0f39a95",
+        "0xFfDcD49d902d71445B93DCbFa51E2F9797de05C9"
+      ],
+      "governance_addresses": [],
+      "staking_addresses": []
+    },
+    {
+      "protocol": "bb-club-restaking",
+      "reward_addresses": [],
+      "withdrawal_addresses": [],
+      "treasury_addresses": [],
+      "governance_addresses": [],
+      "staking_addresses": [
+        "0xF5e11df1ebCf78b6b6D26E04FF19cD786a1e81dC",
+        "0x0d5d4599eb4f48df6aeaf2f3c814f5a5302931e5"
+      ]
+    },
+    {
+      "protocol": "bouncebit-lsd",
+      "reward_addresses": [],
+      "withdrawal_addresses": [],
+      "treasury_addresses": [],
+      "governance_addresses": [
+        "0x22aAC17E571D6651880d057e310703fF4C7c3483",
+        "0x9e4c010d537551c2FF5dEA9A73Af189Dfb9347E6",
+        "0xbF28516EB2a987CB63b1E3b019fEb42aA40d5577",
+        "0xE031b9E9AA6Ec7F29362cBD4735Ef567215fc68A"
+      ],
+      "staking_addresses": [
+        "0x44398B640c82821eF354707598C4C148d81aE72a"
+      ]
+    },
+    {
+      "protocol": "bracket-lst",
+      "reward_addresses": [],
+      "withdrawal_addresses": [],
+      "treasury_addresses": [],
+      "governance_addresses": [],
+      "staking_addresses": [
+        "0x6C8550167BbD06D4610a6A443eCbEd84Bd1AccD6"
+      ]
+    },
+    {
+      "protocol": "clober-liquidity-vault",
+      "reward_addresses": [
+        "0x8ca3a6f4a6260661fcb9a25584c796a1fa380112",
+        "0xca1f6e4ae690d06e3bf943b9019c5ca060c0b834"
+      ],
+      "withdrawal_addresses": [],
+      "treasury_addresses": [],
+      "governance_addresses": [
+        "0x000000000000bb1b11e5ac8099e92e366b64c133",
+        "0x6657d192273731C3cAc646cc82D5F28D0CBE8CCC",
+        "0xB09684f5486d1af80699BbC27f14dd5A905da873"
+      ],
+      "staking_addresses": []
+    },
+    {
+      "protocol": "convex",
+      "reward_addresses": [
+        "0xF403C135812408BFbE8713b5A23a04b3D48AAE31",
+        "0x989aeb4d175e16225e39e87d0d97a3360524ad80",
+        "0xCF50b810E57Ac33B91dCF525C6ddd9881B139332",
+        "0xd3327cb05a8E0095A543D582b5B3Ce3e19270389"
+      ],
+      "withdrawal_addresses": [],
+      "treasury_addresses": [
+        "0x59CFCD384746ec3035299D90782Be065e466800B",
+        "0x5f3b5dfeb7b28cdbd7faba78963ee202a494e2a2"
+      ],
+      "governance_addresses": [
+        "0x007FD070a7E1B0fA1364044a373Ac1339bAD89CF",
+        "0xEC6B8A3F3605B083F7044C0F31f2cac0caf1d469",
+        "0xd11a4Ee017cA0BECA8FA45fF2abFe9C6267b7881",
+        "0xc8418af6358ffdda74e09ca9cc3fe03ca6adc5b0",
+        "0x8ad7a9e2B3Cd9214f36Cb871336d8ab34DdFdD5b",
+        "0x3f78544364c3eCcDCe4d9C89a630AEa26122829d",
+        "0x59cfcd384746ec3035299d90782be065e466800b"
+      ],
+      "staking_addresses": []
+    },
+    {
+      "protocol": "counterstake",
+      "reward_addresses": [],
+      "withdrawal_addresses": [],
+      "treasury_addresses": [],
+      "governance_addresses": [
+        "0x31f8d38df6514b6cc3c360ace3a2efa7496214f6"
+      ],
+      "staking_addresses": []
+    },
+    {
+      "protocol": "crETH2",
+      "reward_addresses": [],
+      "withdrawal_addresses": [],
+      "treasury_addresses": [],
+      "governance_addresses": [
+        "0x49d72e3973900a195a155a46441f0c08179fdb64"
+      ],
+      "staking_addresses": []
+    }
+  ]
+}
