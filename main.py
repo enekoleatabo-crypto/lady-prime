@@ -15,9 +15,11 @@ DEFILLAMA_REPO = "DefiLlama/DefiLlama-Adapters"
 
 # Headers for GitHub API authentication
 HEADERS = {
-    "Authorization": f"token {GITHUB_PAT}",
     "Accept": "application/vnd.github.v3+json"
 }
+if GITHUB_PAT:
+    # Only set Authorization header when a token is present
+    HEADERS["Authorization"] = f"token {GITHUB_PAT}"
 
 # Discovery keywords: broadened per research guidance
 DISCOVERY_KEYWORDS = [
@@ -39,8 +41,10 @@ EXTRA_CATEGORIES = [
 ]
 
 # Scan controls (can be overridden via environment variables)
-LIMIT = int(os.getenv("LIMIT", "974"))           # Default to scanning all project entries
-FULL_SCAN = os.getenv("FULL_SCAN", "true").lower() in ("1", "true", "yes")
+# Reverted to a conservative default to avoid huge, rate-limited scans by accident
+LIMIT = int(os.getenv("LIMIT", "200"))
+# By default, do not full-scan every file in a directory unless explicitly requested
+FULL_SCAN = os.getenv("FULL_SCAN", "false").lower() in ("1", "true", "yes")
 PRIORITY_CATEGORIES = ["payment","withdrawal","treasury","reward","escrow","custody","governance"]
 
 class DefiLlamaAdapterFetcher:
@@ -54,7 +58,8 @@ class DefiLlamaAdapterFetcher:
         self.rate_limit_remaining = None
         self.session = requests.Session()
         self.session.headers.update(HEADERS)
-        self.request_delay = 0.08
+        # small delay between requests to be polite and avoid hitting rate limits
+        self.request_delay = float(os.getenv("REQUEST_DELAY", "0.12"))
     
     def get_rate_limit_info(self):
         try:
@@ -64,6 +69,9 @@ class DefiLlamaAdapterFetcher:
                 data = response.json()
                 self.rate_limit_remaining = data['rate']['remaining']
                 return data['rate']
+            # Helpful debugging when auth fails
+            if response.status_code == 401:
+                print("❌ GitHub API authentication failed (401). Check your GITHUB_PAT in .env")
             return None
         except Exception:
             return None
@@ -77,6 +85,9 @@ class DefiLlamaAdapterFetcher:
             if response.status_code == 404:
                 print("❌ 404 Error: /projects directory not found")
                 return []
+            if response.status_code == 401:
+                print("❌ 401 Unauthorized: invalid or missing GITHUB_PAT. Continuing unauthenticated may be rate-limited.")
+                # Continue but warn the user
             response.raise_for_status()
             adapters = response.json()
             protocol_entries = [item for item in adapters if item.get("type") in ("dir","file")]
@@ -111,15 +122,16 @@ class DefiLlamaAdapterFetcher:
         import re
         address_pattern = r'0x[a-fA-F0-9]{40}'
         try:
-            if entry["type"] == "file":
+            if entry.get("type") == "file":
                 text = self._fetch_file_text(entry)
                 time.sleep(self.request_delay)
                 if not text:
                     return False
-                if re.search(address_pattern, text) or any(k in text.lower() for k in DISCOVERY_KEYWORDS):
+                lowered = text.lower()
+                if re.search(address_pattern, text) or any(k in lowered for k in DISCOVERY_KEYWORDS):
                     return True
                 return False
-            url = f"{GITHUB_API_URL}/repos/{DEFILLAMA_REPO}/contents/projects/{entry['name']}"
+            url = f"{GITHUB_API_URL}/repos/{DEFILLAMA_REPO}/contents/projects/{entry.get('name')}"
             r = self.session.get(url)
             time.sleep(self.request_delay)
             if r.status_code != 200:
@@ -131,7 +143,8 @@ class DefiLlamaAdapterFetcher:
                     time.sleep(self.request_delay)
                     if not text:
                         continue
-                    if re.search(address_pattern, text) or any(k in text.lower() for k in DISCOVERY_KEYWORDS):
+                    lowered = text.lower()
+                    if re.search(address_pattern, text) or any(k in lowered for k in DISCOVERY_KEYWORDS):
                         return True
             return False
         except Exception:
@@ -151,8 +164,8 @@ class DefiLlamaAdapterFetcher:
         for c in EXTRA_CATEGORIES:
             categorized[c] = []
         try:
-            if entry['type'] == 'file':
-                protocol_name = entry['name'].rsplit('.',1)[0]
+            if entry.get('type') == 'file':
+                protocol_name = entry.get('name','').rsplit('.',1)[0]
                 text = self._fetch_file_text(entry) or ''
                 addresses = list(set(re.findall(address_pattern, text)))
                 lines = text.split('\n')
@@ -176,11 +189,11 @@ class DefiLlamaAdapterFetcher:
                                 categorized['treasury_addresses'].append(addr)
                 return {
                     'protocol': protocol_name,
-                    'adapter_url': entry.get('html_url') if entry.get('html_url') else f"https://github.com/{DEFILLAMA_REPO}/tree/main/projects/{entry['name']}",
+                    'adapter_url': entry.get('html_url') if entry.get('html_url') else f"https://github.com/{DEFILLAMA_REPO}/tree/main/projects/{entry.get('name','')}",
                     **categorized
                 }
             # directory
-            protocol_name = entry['name']
+            protocol_name = entry.get('name','')
             url = f"{GITHUB_API_URL}/repos/{DEFILLAMA_REPO}/contents/projects/{protocol_name}"
             r = self.session.get(url)
             time.sleep(self.request_delay)
