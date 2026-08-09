@@ -38,9 +38,9 @@ EXTRA_CATEGORIES = [
     "transfer_addresses"
 ]
 
-# Scan controls
-LIMIT = 500           # Test on first N project entries
-FULL_SCAN = True      # If True: allow more exhaustive per-project file scanning
+# Scan controls (can be overridden via environment variables)
+LIMIT = int(os.getenv("LIMIT", "974"))           # Default to scanning all project entries
+FULL_SCAN = os.getenv("FULL_SCAN", "true").lower() in ("1", "true", "yes")
 PRIORITY_CATEGORIES = ["payment","withdrawal","treasury","reward","escrow","custody","governance"]
 
 class DefiLlamaAdapterFetcher:
@@ -229,8 +229,10 @@ class DefiLlamaAdapterFetcher:
         if not entries:
             print("❌ No protocol entries found!")
             return []
-        print(f"\n📋 Scanning up to {LIMIT} project entries for addresses / keywords...")
+        # Respect LIMIT (may be set via environment variable)
         entries_to_scan = entries[:LIMIT]
+        print(f"\n📋 Scanning up to {len(entries_to_scan)} project entries for financial keywords (limit={LIMIT}, full_scan={FULL_SCAN})...")
+        print(f"🔎 Discovery keywords: {', '.join(DISCOVERY_KEYWORDS[:10])}... (+{len(DISCOVERY_KEYWORDS)-10} more)")
         for i, entry in enumerate(entries_to_scan, 1):
             print(f"  [{i}/{len(entries_to_scan)}] Checking {entry.get('name')} ({entry.get('type')})...", end=' ', flush=True)
             try:
